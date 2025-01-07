@@ -22,33 +22,36 @@ docker build --network=host -t <image-name> .
 [TBD]
 
 ## Usages
-- Launch the docker image and set WANDB_API_KEY inside:
+1. Launch the docker image and set WANDB_API_KEY inside:
 ```
 docker run --shm-size=64g -v <path-to-datasets>:/workspace/datasets -it <image-name> bash
 export WANDB_API_KEY=<wandb-api-key>
 ```
 
-- Training with action policy enabled:
+2. Training with action policy enabled:
 ```
 python3 train.py -c configs/train_config.gin -d datasets/ -o <output-dir>
 ```
 
-- Training with world model only:
+3. Training with world model only:
 ```
 python3 train.py -c configs/pretrained_gwm_train_config.gin -d datasets/ -o <output-dir>
 ```
 
-- Evaluating checkpoint
+4. Evaluating checkpoint
 ```
 python3 evaluate.py -c configs/train_config.gin -d datasets/ -p <checkpoint>
 ```
 
-- ONNX & TensorRT conversion
+5. ONNX & TensorRT conversion
 ```
 python3 onnx_conversion.py -p <checkpoint> -o <onnx_file_path>
 
 python3 trt_conversion.py -o <onnx_file_path> -t <trt_file_path>
 ```
+
+6. E2E navigation with ROS2
+With the TensorRT engine, follow this [instruction](./ros2_deployment/README.md) to setup ROS2, Isaac Sim to run a demo example of X-Mobility.
 
 ## License
 X-Mobility is released under the Apache License 2.0. See LICENSE for additional details.
