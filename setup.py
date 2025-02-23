@@ -12,8 +12,8 @@ def load_requirements(filename):
 setup(
     name='x_mobility',
     version='0.1.0',
-    packages=find_packages(where='model'),
-    package_dir={'': 'model'},
+    packages=find_packages(),
+    package_dir={"": "."},
     author='Wei Liu',
     author_email='liuw@nvidia.com',
     description='Python package for X-Mobility',
