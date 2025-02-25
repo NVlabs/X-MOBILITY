@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="X-Mobility: End-To-End Generalizable Navigation via World Modeling">
+  <meta name="keywords" content="Cross-embodiment, Mobility Policy, Residual RL, Policy Distillation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X-Mobility: End-To-End Generalizable Navigation via World Modeling</title>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <link rel="icon" href="data:,">
+
+  <style>
+    .publication-title {
+      font-weight: normal;  /* Make base text normal weight */
+    }
+    .publication-title strong {
+      font-weight: 700;     /* Make bold text heavier */
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">
+            <strong>X-Mobility: End-To-End Generalizable Navigation via World Modeling</strong>
+          </h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              Wei Liu<sup>1*</sup>,</span>
+            <span class="author-block">
+              Huihua Zhao<sup>1*</sup>,</span>
+            <span class="author-block">
+              Chenran Li<sup>1,2</sup>,
+            </span>
+            <span class="author-block">
+              Joydeep Biswas<sup>1,3</sup>,
+            </span>
+            <br>
+            <span class="author-block">
+              Billy Okal<sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Pulkit Goyal<sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Soha Pouya<sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Yan Chang<sup>1</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Nvidia,</span>
+            <span class="author-block"><sup>2</sup>UC Berkeley,</span>
+            <span class="author-block"><sup>3</sup>UT Austin</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>*</sup>Equal contribution</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2410.17491"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2410.17491"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/NVlabs/X-Mobility"
+                 class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/merged_grid.mp4"
+                type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section> -->
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            General-purpose navigation in challenging environments remains a significant problem in robotics, with current state-of-the-art approaches facing myriad limitations. Classical approaches struggle with cluttered settings and require extensive tuning, while learning-based methods face difficulties generalizing to out-of-distribution environments. This paper introduces X-Mobility, a end-to-end generalizable navigation model that overcomes existing challenges by leveraging three key ideas. 
+          </p>
+          <p>
+            First, X-Mobility employs an auto-regressive world modeling architecture with a latent state space to capture world dynamics. Second, a diverse set of multi-head decoders enables the model to learn a rich state representation that correlates strongly with effective navigation skills. Third, by decoupling world modeling from action policy, our architecture can train effectively on a variety of data sources, both with and without expert policies—off-policy data allows the model to learn world dynamics with maximum state-action pair coverage, while on-policy data with supervisory control enables optimal action policy learning.
+          </p>
+          <p>
+            Through extensive experiments, we demonstrate that X-Mobility not only generalizes effectively but also surpasses existing state-of-the-art navigation approaches in terms of success rate, navigation time, and motion smoothness. X-Mobility also achieves zero-shot Sim2Real transferability, with more efficient computational runtime compared to classical methods.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+  </div>
+</section>
+
+<section class="section">
+    <div class="container is-max-desktop">
+      <!-- Method -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Method</h2>
+          
+          <!-- Method figure -->
+          <div class="content has-text-centered">
+            <div class="columns is-centered">
+              <div class="column is-full-width">
+                <img src="./static/images/x_mobility.png" alt="Method overview">
+              </div>
+            </div>
+          </div>
+  
+          <!-- Method description -->
+          <div class="content has-text-justified">
+            <p>
+              Inspired by world modeling, X-Mobility employs a lightweight auto-regressive learning architecture to develop a rich latent representation space that probabilistically captures the world state and its dynamics. This representation space is effectively trained and strongly correlated with robust navigation skills through a set of diverse multi-task decoders. To address data sparsity, X-Mobility decouples world modeling from action policy imitation, allowing it to train from a variety of data sources, both with and without supervisory control inputs: off-policy data sources enable the model to learn world dynamics with unlimited state-action pairs that can guarantee maximum distribution coverage, while on-policy sources with supervisory control facilitate the action policy learning for goal reaching. With this architectural design, X-Mobility is trained through a multi-stage pipeline that leverages NVIDIA's Isaac Sim to generate large-scale, photorealistic synthetic datasets featuring diverse scenes and action policies.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!--/ Method -->
+    </div>
+  </section>
+
+
+  
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Cross-embodiment Introduction -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Generalizable Navigation        </h2>
+        <div class="content has-text-justified">
+          <p>
+            Extensive experiments demonstrate that X-Mobility can consistently outperform current state-of-the-art methods, and exhibits strong generalization in out-of-distribution environments.
+          </p>
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+              <video id="zero-shot-video" controls autoplay muted loop playsinline width="100%">
+                <source src="./static/videos/zero_shot_merged.mp4" type="video/mp4">
+              </video>
+              <p class="has-text-centered is-size-6 mt-2">
+                X-Mobility generalizing to various unseen environments without additional training.
+              </p>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="content has-text-justified">
+          <p>
+            X-Mobility acquired its foundational navigation skills from Nav2 and subsequently surpassed it, delivering enhanced performance, particularly in complex environments that Nav2 struggles to navigate effectively.
+          </p>
+           <!-- Added 1×2 video layout -->
+          <div class="content has-text-centered">
+            <div class="columns is-centered">
+              <!-- First video -->
+              <div class="column is-half">
+                <video id="zero-shot-video-1" controls autoplay muted loop playsinline width="100%">
+                  <source src="./static/videos/low_lying_5x.mp4" type="video/mp4">
+                </video>
+                <p class="has-text-centered is-size-6 mt-2">
+                  X-Mobility navigating around low-lying obstacles that traditional methods often miss.
+                </p>
+              </div>
+              <!-- Second video -->
+              <div class="column is-half">
+                <video id="zero-shot-video-2" controls autoplay muted loop playsinline width="100%">
+                  <source src="./static/videos/dense_box_5x.mp4" type="video/mp4">
+                </video>
+                <p class="has-text-centered is-size-6 mt-2">
+                  X-Mobility efficiently navigating through densely packed obstacles.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Zero-shot Multi-robot Interaction -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Zero-shot Sim2Real Transfer</h2>
+        <div class="content has-text-justified">
+          <p>
+            We successfully deployed X-Mobility on a Nova Carter robot without any fine-tuning, demonstrating its real-time navigation capabilities through zero-shot Sim2Real transfer.
+          </p>
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+              <video id="sim2real-video" controls autoplay muted loop playsinline width="100%">
+                <source src="./static/videos/mfm_hubble_lab_obstcles_foxglove.mp4" type="video/mp4">
+              </video>
+              <p class="has-text-centered is-size-6 mt-2">
+                Real-world deployment of X-Mobility on a Nova Carter robot navigating through a lab environment with obstacles.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{liu2024xmobilityendtoendgeneralizablenavigation,
+      title={X-MOBILITY: End-To-End Generalizable Navigation via World Modeling}, 
+      author={Wei Liu and Huihua Zhao and Chenran Li and Joydeep Biswas and Billy Okal and Pulkit Goyal and Yan Chang and Soha Pouya},
+      year={2024},
+      eprint={2410.17491},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2410.17491},
+}</code></pre>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // List of video IDs to limit and their durations
+    const videoLimits = {
+      'h1-video': 10,
+      'spot-video': 8,
+      'carter-video': 5,
+      'g1-video': 10
+    };
+
+    // Apply limits only to specified videos
+    Object.entries(videoLimits).forEach(([videoId, maxDuration]) => {
+      const video = document.getElementById(videoId);
+      if (video) {
+        video.addEventListener('timeupdate', function() {
+          if (this.currentTime >= maxDuration) {
+            this.currentTime = 0; // Reset to beginning
+          }
+        });
+      }
+    });
+  });
+</script>
+
+<footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+                Page template borrowed from <a
+                href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
