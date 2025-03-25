@@ -391,8 +391,9 @@ class XMobilityLoss(nn.Module):
             else:
                 losses['action'] = self.action_weight * self.action_loss(
                     output['action'], batch['action'])
-                losses['path'] = self.path_weight * self.path_loss(
-                    output['path'], batch['path'])
+                if 'path' in output and 'path' in batch:
+                    losses['path'] = self.path_weight * self.path_loss(
+                        output['path'], batch['path'])
 
         losses['kl'] = self.kl_weight * self.kl_loss(output['prior'],
                                                      output['posterior'])
