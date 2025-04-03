@@ -256,12 +256,7 @@ class IsaacSimDataset(Dataset):
         if self.use_lazy_loading:
             # Lazy loading implementation
             # Find which file contains this index
-            file_idx = 0
-            while file_idx < len(self.accumulated_sample_sizes) - 1:
-                if index < self.accumulated_sample_sizes[file_idx + 1]:
-                    break
-                file_idx += 1
-            
+            file_idx = bisect.bisect_right(self.accumulated_sample_sizes, index) - 1
             file_path = self.file_paths[file_idx]
             
             # Calculate the sequence start position within the file
