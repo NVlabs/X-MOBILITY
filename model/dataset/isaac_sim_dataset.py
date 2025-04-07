@@ -75,7 +75,8 @@ class XMobilityIsaacSimDataModule(pl.LightningDataModule):
                  enable_semantic: bool = False,
                  enable_rgb_stylegan: bool = False,
                  is_gwm_pretrain: bool = False,
-                 precomputed_semantic_label: bool = True):
+                 precomputed_semantic_label: bool = True,
+                 use_lazy_loading: bool = True):
         super().__init__()
         self.batch_size = batch_size
         self.sequence_length = sequence_length
@@ -84,25 +85,31 @@ class XMobilityIsaacSimDataModule(pl.LightningDataModule):
         self.enable_rgb_stylegan = enable_rgb_stylegan
         self.is_gwm_pretrain = is_gwm_pretrain
         self.precomputed_semantic_label = precomputed_semantic_label
+        self.use_lazy_loading = use_lazy_loading
         self.dataset_path = dataset_path
         self.train_dataset = None
         self.val_dataset = None
 
     def setup(self, stage=None):
+        # Initialize datasets - data will be loaded on-demand during training
+        # rather than all at once, thanks to the lazy-loading implementation in IsaacSimDataset
         if stage == 'fit':
             self.train_dataset = IsaacSimDataset(
                 os.path.join(self.dataset_path, 'train'), self.sequence_length,
                 self.enable_semantic, self.enable_rgb_stylegan,
-                self.is_gwm_pretrain, self.precomputed_semantic_label)
+                self.is_gwm_pretrain, self.precomputed_semantic_label,
+                self.use_lazy_loading)
             self.val_dataset = IsaacSimDataset(
                 os.path.join(self.dataset_path, 'val'), self.sequence_length,
                 self.enable_semantic, self.enable_rgb_stylegan,
-                self.is_gwm_pretrain, self.precomputed_semantic_label)
+                self.is_gwm_pretrain, self.precomputed_semantic_label,
+                self.use_lazy_loading)
         if stage == 'test' or stage is None:
             self.test_dataset = IsaacSimDataset(
                 os.path.join(self.dataset_path, 'test'), self.sequence_length,
                 self.enable_semantic, self.enable_rgb_stylegan,
-                self.is_gwm_pretrain, self.precomputed_semantic_label)
+                self.is_gwm_pretrain, self.precomputed_semantic_label,
+                self.use_lazy_loading)
 
     def train_dataloader(self):
         train_sampler = DistributedSampler(self.train_dataset, shuffle=True)
@@ -138,7 +145,8 @@ class XMobilityIsaacSimDataModule(pl.LightningDataModule):
                                        self.sequence_length,
                                        self.enable_semantic,
                                        self.enable_rgb_stylegan,
-                                       self.is_gwm_pretrain)
+                                       self.is_gwm_pretrain,
+                                       self.use_lazy_loading)
         return DataLoader(
             test_dataset,
             batch_size=1,
@@ -158,61 +166,129 @@ class IsaacSimDataset(Dataset):
                  enable_semantic: bool = False,
                  enable_rgb_stylegan: bool = False,
                  is_gwm_pretrain: bool = False,
-                 precomputed_semantic_label: bool = True):
+                 precomputed_semantic_label: bool = True,
+                 use_lazy_loading: bool = False):
         super().__init__()
         self.sequence_length = sequence_length
         self.enable_semantic = enable_semantic
         self.enable_rgb_stylegan = enable_rgb_stylegan
         self.is_gwm_pretrain = is_gwm_pretrain
         self.precomputed_semantic_label = precomputed_semantic_label
-        self.dfs = []
-        self.accumulated_sample_sizes = []
-        self.num_samples = 0
-
+        self.use_lazy_loading = use_lazy_loading
+        
         # Get the required columns to load data.
-        required_columns = REQUIRED_COLUMNS
+        self.required_columns = REQUIRED_COLUMNS
         if self.enable_semantic:
             if precomputed_semantic_label:
-                required_columns = REQUIRED_COLUMNS + SEMANTIC_LABELS_COLUMNS
+                self.required_columns = REQUIRED_COLUMNS + SEMANTIC_LABELS_COLUMNS
             else:
-                required_columns = REQUIRED_COLUMNS + SEMANTIC_IMAGE_COLUMNS
+                self.required_columns = REQUIRED_COLUMNS + SEMANTIC_IMAGE_COLUMNS
+        
+        if self.use_lazy_loading:
+            # Lazy loading implementation
+            self.file_paths = []  # Store file paths instead of loading data
+            self.file_sizes = []  # Store the number of rows in each file
+            self.accumulated_sample_sizes = [0]  # Start with 0
+            self.num_samples = 0
+            
+            # Iterate each scenario in the dataset.
+            for scenario in os.listdir(dataset_path):
+                scenario_path = os.path.join(dataset_path, scenario)
+                # Iterate the sorted runs for the given scenario.
+                run_files = [
+                    run_file for run_file in os.listdir(scenario_path)
+                    if run_file.endswith('pqt')
+                ]
+                run_files = sorted(run_files)
+                with tqdm(total=len(run_files),
+                          desc=f"Indexing data from {scenario_path}",
+                          unit="file") as pbar:
+                    for run_file in run_files:
+                        parquet_path = os.path.join(scenario_path, run_file)
+                        # Just get the number of rows without loading the entire file
+                        sample_count = self._get_sample_count(parquet_path)
+                        self.file_paths.append(parquet_path)
+                        self.file_sizes.append(sample_count)
+                        
+                        # Calculate how many complete sequences we can get from this file
+                        usable_samples = sample_count // self.sequence_length
+                        self.num_samples += usable_samples
+                        self.accumulated_sample_sizes.append(self.num_samples)
+                        pbar.update(1)
+        else:
+            # Original implementation - load everything into memory
+            self.dfs = []
+            self.accumulated_sample_sizes = [0]
+            self.num_samples = 0
+            
+            # Iterate each scenario in the dataset.
+            for scenario in os.listdir(dataset_path):
+                scenario_path = os.path.join(dataset_path, scenario)
+                # Iterate the sorted runs for the given scenario.
+                run_files = [
+                    run_file for run_file in os.listdir(scenario_path)
+                    if run_file.endswith('pqt')
+                ]
+                run_files = sorted(run_files)
+                with tqdm(total=len(run_files),
+                          desc=f"Loading data from {scenario_path}",
+                          unit="file") as pbar:
+                    for run_file in run_files:
+                        parquet_path = os.path.join(scenario_path, run_file)
+                        df = pd.read_parquet(parquet_path, columns=self.required_columns, engine='pyarrow')
+                        self.dfs.append(df)
+                        self.num_samples += len(df) // self.sequence_length
+                        self.accumulated_sample_sizes.append(self.num_samples)
+                        pbar.update(1)
 
-        # Iterate each scenario in the dataset.
-        for scenario in os.listdir(dataset_path):
-            scenario_path = os.path.join(dataset_path, scenario)
-            # Iterate the sorted runs for the given scenario.
-            run_files = [
-                run_file for run_file in os.listdir(scenario_path)
-                if run_file.endswith('pqt')
-            ]
-            run_files = sorted(run_files)
-            with tqdm(total=len(run_files),
-                      desc=f"Loading data from {scenario_path}",
-                      unit="file") as pbar:
-                for run_file in run_files:
-                    parquet_path = os.path.join(scenario_path, run_file)
-                    df = pd.read_parquet(parquet_path,
-                                         columns=required_columns,
-                                         engine='pyarrow')
-                    self.dfs.append(df)
-                    self.accumulated_sample_sizes.append(self.num_samples)
-                    self.num_samples += len(df) // self.sequence_length
-                    pbar.update(1)
+    def _get_sample_count(self, parquet_path):
+        # Read only the metadata to get the number of rows
+        import pyarrow.parquet as pq
+        metadata = pq.read_metadata(parquet_path)
+        return metadata.num_rows
 
     def __len__(self):
         return self.num_samples
 
     def __getitem__(self, index):
         batch = {}
-        # Get the cooresponding df.
-        df_idx = bisect.bisect_left(self.accumulated_sample_sizes,
-                                    index + 1) - 1
-        for seq_idx in range(self.sequence_length):
-            sample_idx = (index - self.accumulated_sample_sizes[df_idx]
-                          ) * self.sequence_length + seq_idx
-            element = self._get_element(self.dfs[df_idx], sample_idx)
-            for k, v in element.items():
-                batch[k] = batch.get(k, []) + [v]
+        
+        if self.use_lazy_loading:
+            # Lazy loading implementation
+            # Find which file contains this index
+            file_idx = bisect.bisect_right(self.accumulated_sample_sizes, index) - 1
+            file_path = self.file_paths[file_idx]
+            
+            # Calculate the sequence start position within the file
+            relative_index = index - self.accumulated_sample_sizes[file_idx]
+            sequence_start = relative_index * self.sequence_length
+            
+            # Load the entire sequence at once
+            df = pd.read_parquet(
+                file_path,
+                columns=self.required_columns,
+                engine='pyarrow'
+            )
+            
+            # Extract just the rows we need
+            sequence_end = sequence_start + self.sequence_length
+            sequence_df = df.iloc[sequence_start:sequence_end]
+            
+            # Process the loaded data
+            for seq_idx in range(self.sequence_length):
+                element = self._get_element(sequence_df, seq_idx)
+                for k, v in element.items():
+                    batch[k] = batch.get(k, []) + [v]
+        else:
+            # Original implementation
+            df_idx = bisect.bisect_left(self.accumulated_sample_sizes, index + 1) - 1
+            sample_idx = (index - self.accumulated_sample_sizes[df_idx]) * self.sequence_length
+            
+            for seq_idx in range(self.sequence_length):
+                element = self._get_element(self.dfs[df_idx], sample_idx + seq_idx)
+                for k, v in element.items():
+                    batch[k] = batch.get(k, []) + [v]
+        
         # Convert np array to tensor
         for k, v in batch.items():
             batch[k] = torch.from_numpy(np.stack(v)).type(torch.float32)

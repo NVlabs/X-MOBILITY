@@ -38,6 +38,7 @@ XMobilityIsaacSimDataModule.is_gwm_pretrain=%IS_GWM_PRETRAIN
 XMobilityIsaacSimDataModule.enable_semantic=%ENABLE_SEMANTIC
 XMobilityIsaacSimDataModule.enable_rgb_stylegan=%ENABLE_RGB_STYLEGAN
 XMobilityIsaacSimDataModule.precomputed_semantic_label=True
+XMobilityIsaacSimDataModule.use_lazy_loading=False
 
 #Encoders
 SpeedEncoder.out_channels=32
