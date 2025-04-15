@@ -199,3 +199,24 @@ That's it!  If everything worked, you should see the robot moving towards the go
 
 https://github.com/user-attachments/assets/32931225-60b1-4fbb-8f17-1b7e7641808f
 
+
+# COMPASS Integration
+
+To run this navigator example with the COMPASS policy, you can follow the following steps:
+
+1. Clone the COMPASS repo (https://github.com/NVlabs/COMPASS) and download the generalist checkpoint from: https://huggingface.co/nvidia/COMPASS/blob/main/compass_generalist.ckpt
+
+2. Follow the instructions in COMPASS [README](https://github.com/NVlabs/COMPASS?tab=readme-ov-file#model-export) to setup the environment and export the ONNX file from the generalist checkpoint:
+```
+python3 onnx_conversion.py -b <x-mobility-ckpt> -g <downloaded-generalist-ckpt> -e carter -o <onnx-output-path>
+```
+NOTE: Update the image size in the `onnx_conversion.py` to match the camera resolution.
+
+3. Follow the instructions in Step 5 to build the TensorRT engine.
+
+4. Point the `runtime_path` parameter in the `x_mobility_navigator.launch.py` to the newly built engine.
+
+5. Launch the X-Mobility navigator with the COMPASS policy:
+```
+ros2 launch x_mobility_navigator x_mobility_navigator.launch.py
+```
