@@ -38,7 +38,7 @@ PATH_TOPIC_NAME = '/x_mobility_path'
 RUNTIME_PATH = 'runtime_path'
 MAPLESS_FLAG = 'is_mapless'
 
-NUM_ROUTE_POINTS = 20
+NUM_ROUTE_POINTS = 10
 # Route vector with 4 values representing start and end positions
 ROUTE_VECTOR_SIZE = 4
 ROBOT_FRAME = 'base_link'
@@ -121,6 +121,11 @@ class XMobilityNavigator(Node):
         runtime = trt.Runtime(trt.Logger(trt.Logger.INFO))
         engine = runtime.deserialize_cuda_engine(engine_data)
         self.runtime_context = engine.create_execution_context()
+        for idx in range(engine.num_io_tensors):
+            name = engine.get_tensor_name(idx) 
+            print(name)
+            print(engine.get_tensor_dtype(name))
+            print(engine.get_tensor_shape(name))
 
     def image_callback(self, image_msg):
         self.camera_image = self.process_image_msg(image_msg)
@@ -231,7 +236,7 @@ class XMobilityNavigator(Node):
         history_input = cuda.mem_alloc(self.history.nbytes)
         sample_input = cuda.mem_alloc(self.sample.nbytes)
         action_output = cuda.mem_alloc(self.action.nbytes)
-        path_output = cuda.mem_alloc(self.path.nbytes)
+        # path_output = cuda.mem_alloc(self.path.nbytes)
         history_output = cuda.mem_alloc(self.history.nbytes)
         sample_ouput = cuda.mem_alloc(self.sample.nbytes)
 
@@ -253,7 +258,7 @@ class XMobilityNavigator(Node):
             int(history_input),
             int(sample_input),
             int(action_output),
-            int(path_output),
+            # int(path_output),
             int(history_output),
             int(sample_ouput),
         ]
@@ -263,7 +268,7 @@ class XMobilityNavigator(Node):
 
         # Copy action back to host and publish
         cuda.memcpy_dtoh(self.action, action_output)
-        cuda.memcpy_dtoh(self.path, path_output)
+        # cuda.memcpy_dtoh(self.path, path_output)
         cuda.memcpy_dtoh(self.history, history_output)
         cuda.memcpy_dtoh(self.sample, sample_ouput)
 

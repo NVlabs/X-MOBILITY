@@ -41,7 +41,7 @@ def generate_launch_description():
                 LaunchConfiguration("is_mapless", default="True"),
                 'runtime_path':
                 LaunchConfiguration("runtime_path",
-                                    default="/tmp/x_mobility.engine"),
+                                    default="/tmp/compass_carter.engine"),
             }],
         ),
         Node(
