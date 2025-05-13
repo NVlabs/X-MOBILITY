@@ -8,6 +8,7 @@ imgui.ini
 .dazel_run
 venv/
 .clangd/
+.idea
 
 # Local setups
 **/_isaac_sim
@@ -32,3 +33,5 @@ venv/
 *.egg
 dist/
 build/
+datasets
+outputs/

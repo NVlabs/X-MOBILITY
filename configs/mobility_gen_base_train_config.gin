@@ -15,7 +15,7 @@ IS_GWM_PRETRAIN=False
 # Train
 train.epochs=%NUM_EPOCHS
 train.precision="16-mixed"
-train.data_module=@XMobilityLeRobotDataModule
+train.data_module=@XMobilityMobilityGenDataModule
 train.model_trainer=@XMobilityTrainer
 
 # Evaluate
@@ -31,12 +31,12 @@ XMobilityTrainer.lr=1e-5
 XMobilityTrainer.scheduler_pct_start=0.2
 
 # Dataloader
-XMobilityLeRobotDataModule.batch_size=4
-XMobilityLeRobotDataModule.sequence_length=%SEQUENCE_LENGTH
-XMobilityLeRobotDataModule.num_workers=4
-XMobilityLeRobotDataModule.is_gwm_pretrain=%IS_GWM_PRETRAIN
-XMobilityLeRobotDataModule.enable_semantic=%ENABLE_SEMANTIC
-XMobilityLeRobotDataModule.enable_rgb_stylegan=%ENABLE_RGB_STYLEGAN
+XMobilityMobilityGenDataModule.batch_size=4
+XMobilityMobilityGenDataModule.sequence_length=%SEQUENCE_LENGTH
+XMobilityMobilityGenDataModule.num_workers=4
+XMobilityMobilityGenDataModule.is_gwm_pretrain=%IS_GWM_PRETRAIN
+XMobilityMobilityGenDataModule.enable_semantic=%ENABLE_SEMANTIC
+XMobilityMobilityGenDataModule.enable_rgb_stylegan=%ENABLE_RGB_STYLEGAN
 
 #Encoders
 SpeedEncoder.out_channels=32
