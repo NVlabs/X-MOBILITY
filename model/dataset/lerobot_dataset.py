@@ -40,7 +40,7 @@ from model.dataset.semantic_label import SemanticLabel
 from model.dataset.data_constants import INPUT_IMAGE_SIZE
 
 ROUTE_POSE_SIZE = 2
-FIXED_ROUTE_SIZE = 20
+FIXED_ROUTE_SIZE = 200
 
 
 # Create a 4x4 transformation matrix from position and quaternion.
@@ -114,10 +114,10 @@ class XMobilityLeRobotDataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         if stage == 'fit':
-            self.train_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'train'), 1)
-            self.val_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'val'), 1)
+            self.train_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'train'), 1, enable_semantic=True, is_gwm_pretrain=True)
+            self.val_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'val'), 1, enable_semantic=True, is_gwm_pretrain=True)
         if stage == 'test' or stage is None:
-            self.test_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'test'), 1)
+            self.test_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'test'), 1, enable_semantic=True, is_gwm_pretrain=True)
 
     def train_dataloader(self):
         train_sampler = DistributedSampler(self.train_dataset, shuffle=True)
@@ -188,12 +188,15 @@ class LeRobotDataset(Dataset):
         batch = {}
         # Get the cooresponding df.
         for seq_idx in range(self.sequence_length):
-            element = {'action': self._get_action(self.dataset[index+seq_idx]),
-                       'image': self._get_rgb_image(self.dataset[index+seq_idx]),
-                       'speed': self._get_speed(self.dataset[index+seq_idx])}
+            sample = self.dataset[index+seq_idx]
+            element = {'action': self._get_action(sample),
+                       'image': sample[self.camera_name + "rgb_image"],
+                       'speed': self._get_speed(sample)}
+            if self.enable_semantic:
+                element['semantic_label'] = sample[self.camera_name + 'segmentation_image'][0]
 
             if self.is_gwm_pretrain:
-                element['route_vectors'] = self._get_route_vector(self.dataset[index+seq_idx])
+                element['route_vectors'] = self._get_route_vector(sample)
 
             for k, v in element.items():
                 batch[k] = batch.get(k, []) + [v]
@@ -201,7 +204,7 @@ class LeRobotDataset(Dataset):
         for k, v in batch.items():
             batch[k] = torch.from_numpy(np.stack(v)).type(torch.float32)
         # Downsample the input images.
-        self._down_sample_input_image(batch)
+        # self._down_sample_input_image(batch)
 
         # Prepare scaled rgb and semantic labels
         if self.enable_rgb_stylegan:
@@ -220,8 +223,7 @@ class LeRobotDataset(Dataset):
         if 'target_path' not in sample:
             return None
         route_poses = np.array(sample['target_path'], np.float32)
-        route_poses = route_poses.reshape(
-            len(route_poses) // ROUTE_POSE_SIZE, ROUTE_POSE_SIZE)
+        route_poses = route_poses.reshape(FIXED_ROUTE_SIZE, ROUTE_POSE_SIZE)
         # Transform the route_poses to the robot frame.
         route_poses = world_to_robot_frame(route_poses,
                                            sample['robot.position'],
@@ -241,16 +243,6 @@ class LeRobotDataset(Dataset):
             route_vec[idx] = np.concatenate(
                 (route_poses[idx], route_poses[idx + 1]), axis=0)
         return route_vec
-
-    def _get_semantic_label(self, sample):
-        semantic_labels = np.array([
-            self.semantic_label_lookup.get(str(label), SemanticLabel.BACKGROUND)
-            for label in sample['robot.front_camera.left.segmentation_image']
-        ]).astype(np.uint8)
-        semantic_labels_shape = sample['segmentation_image.shape']
-        semantic_labels = semantic_labels.reshape(semantic_labels_shape[0],
-                                                  semantic_labels_shape[1], 1)
-        return np.transpose(semantic_labels, (2, 0, 1))
 
     def _get_action(self, sample):
         action = np.zeros(6)

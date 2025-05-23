@@ -78,8 +78,6 @@ class ImageDINOEncoder(nn.Module):
             size=[dino_image_size, dino_image_size],
             mode='bicubic',
             align_corners=False)
-        print("processed image shape: ", processed_image.shape)
-        print("self.mean ", self.mean.shape)
         processed_image = (processed_image - self.mean) / self.std
 
         # Encode image.

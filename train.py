@@ -63,7 +63,8 @@ def train(dataset_path, output_dir, ckpt_path, wandb_entity_name,
                          sync_batchnorm=True,
                          callbacks=callbacks,
                          strategy='ddp_find_unused_parameters_true',
-                         logger=wandb_logger)
+                         logger=wandb_logger,
+                         num_sanity_val_steps=0)
     trainer.fit(model, datamodule=data)
 
     trainer.test(ckpt_path="last", datamodule=data)
