@@ -20,12 +20,20 @@ class SemanticLabel(IntEnum):
     ''' Semantic label enum
     '''
     BACKGROUND = 0
-    NAVIGABLE = 1
+    UNLABELLED = 1
     FORKLIFT = 2
     PALLET = 3
     CONE = 4
     SIGN = 5
     FENCE = 6
+    CRATE = 7
+    FLOOR = 8
+    STRUCTURE = 9
+    LINE = 10
+    PILE = 11
+    SHELF = 12
+    RACK = 13
+    NAVIGABLE = 14
 
     @staticmethod
     def get_semantic_lable_names():

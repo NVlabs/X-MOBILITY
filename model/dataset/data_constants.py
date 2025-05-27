@@ -21,4 +21,4 @@
 # - Trade-off between GPU memory usage and model performace. X-mobility is trained with sequences
 #   of frames, requiring large amount of GPU memory, therefore it's preferred to keeping the
 #   input image size relatively small to increase the sequence_length for better model performance.
-INPUT_IMAGE_SIZE = (960, 600)
+INPUT_IMAGE_SIZE = (320, 512)

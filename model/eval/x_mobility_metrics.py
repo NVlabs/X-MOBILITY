@@ -37,7 +37,7 @@ class XMobilityMetrics():
         # Sementic segmentation IOU (intersection over union) metric scores.
         metrics = {}
         semantic_label_names = SemanticLabel.get_semantic_lable_names()
-        target = batch['semantic_label'][:, :, 0].detach()
+        target = batch['semantic_label'].detach()
         pred = torch.argmax(output['semantic_segmentation_1'].detach(), dim=-3)
         iou_scores = jaccard_index(preds=pred,
                                    target=target,

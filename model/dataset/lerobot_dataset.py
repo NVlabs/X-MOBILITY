@@ -176,7 +176,7 @@ class LeRobotDataset(Dataset):
         self.enable_rgb_stylegan = enable_rgb_stylegan
         self.is_gwm_pretrain = is_gwm_pretrain
         self.camera_name = 'robot.front_camera.left.'
-        self.dataset = LeLeRobotDataset(repo_id="MobilityGenH1Dataset", root=dataset_path, episodes=list(range(0, 1)))
+        self.dataset = LeLeRobotDataset(repo_id="MobilityGenH1Dataset", root=dataset_path)
         self.semantic_label_lookup = self.dataset.meta.names[self.camera_name + "segmentation_info"]
         self.accumulated_sample_sizes = []
         self.num_samples = 0
@@ -185,8 +185,26 @@ class LeRobotDataset(Dataset):
         return self.dataset.__len__()
 
     def __getitem__(self, index):
+        batch = self._get_batch(index)
+
+        # Convert np array to tensor
+        for k, v in batch.items():
+            batch[k] = torch.from_numpy(np.stack(v)).type(torch.float32)
+
+        #Downsample the input images.
+        self._down_sample_input_image(batch)
+
+        # Prepare scaled rgb and semantic labels
+        if self.enable_rgb_stylegan:
+            self._compose_rgb_labels(batch)
+
+        if self.enable_semantic:
+            self._compose_semantic_labels(batch)
+
+        return batch
+
+    def _get_batch(self, index):
         batch = {}
-        # Get the cooresponding df.
         for seq_idx in range(self.sequence_length):
             sample = self.dataset[index+seq_idx]
             element = {'action': self._get_action(sample),
@@ -200,23 +218,7 @@ class LeRobotDataset(Dataset):
 
             for k, v in element.items():
                 batch[k] = batch.get(k, []) + [v]
-        # Convert np array to tensor
-        for k, v in batch.items():
-            batch[k] = torch.from_numpy(np.stack(v)).type(torch.float32)
-        # Downsample the input images.
-        # self._down_sample_input_image(batch)
-
-        # Prepare scaled rgb and semantic labels
-        if self.enable_rgb_stylegan:
-            self._compose_rgb_labels(batch)
-
-        if self.enable_semantic:
-            self._compose_semantic_labels(batch)
-
         return batch
-
-    def _get_rgb_image(self, sample: object) -> ndarray[Any, dtype[floating[Any]]]:
-        return np.transpose(np.array(sample['robot.front_camera.left.rgb_image']), (2, 0, 1)) / 255.0
 
     def _get_route_vector(self, sample):
         # MobilityGen does not provide route_poses, so we use the target_path instead.
