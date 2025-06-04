@@ -23,7 +23,6 @@ from pytorch_lightning.loggers import WandbLogger
 
 from arg_parser import parse_arguments, TaskMode
 from model.dataset.lerobot_dataset import XMobilityLeRobotDataModule  # pylint: disable=unused-import
-from model.dataset.mobility_gen_dataset import XMobilityMobilityGenDataModule  # pylint: disable=unused-import
 from model.trainer import XMobilityTrainer  # pylint: disable=unused-import
 
 
