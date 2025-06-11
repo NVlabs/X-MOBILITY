@@ -28,7 +28,7 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
 
-from model.dataset.semantic_label import SemanticLabel
+from model.dataset.lerobot_semantic_label import SemanticLabel
 from model.dataset.data_constants import INPUT_IMAGE_SIZE
 
 # Sim labels mapping to group semantic classes as needed.

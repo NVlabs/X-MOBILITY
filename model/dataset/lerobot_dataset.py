@@ -20,14 +20,9 @@ from typing import Any
 
 import gin
 import numpy as np
-import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torchvision.transforms.functional as tvf
-import lerobot
-from PIL import Image
-from numpy import ndarray, dtype, floating
-from tqdm import tqdm
 from torch.utils.data import DataLoader, Dataset, random_split
 
 import lerobot
@@ -36,7 +31,7 @@ from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotD
 from torch.utils.data.distributed import DistributedSampler
 from scipy.spatial.transform import Rotation
 
-from model.dataset.semantic_label import SemanticLabel
+from model.dataset.lerobot_semantic_label import SemanticLabel
 from model.dataset.data_constants import INPUT_IMAGE_SIZE
 
 ROUTE_POSE_SIZE = 2
@@ -114,10 +109,10 @@ class XMobilityLeRobotDataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         if stage == 'fit':
-            self.train_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'train'), 1, enable_semantic=True, is_gwm_pretrain=True)
-            self.val_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'val'), 1, enable_semantic=True, is_gwm_pretrain=True)
+            self.train_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'train'), self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
+            self.val_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'val'), self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
         if stage == 'test' or stage is None:
-            self.test_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'test'), 1, enable_semantic=True, is_gwm_pretrain=True)
+            self.test_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'test'), self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
 
     def train_dataloader(self):
         train_sampler = DistributedSampler(self.train_dataset, shuffle=True)
@@ -210,6 +205,8 @@ class LeRobotDataset(Dataset):
             element = {'action': self._get_action(sample),
                        'image': sample[self.camera_name + "rgb_image"],
                        'speed': self._get_speed(sample)}
+
+            # grab first channel since all channels are the same
             if self.enable_semantic:
                 element['semantic_label'] = sample[self.camera_name + 'segmentation_image'][0]
 
