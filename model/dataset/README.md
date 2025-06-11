@@ -54,6 +54,7 @@ useful to understand if you plan to work more closely with this format. Please r
 Currently the XMobilityLeRobotDatasetModule requires the following changes in order to be used with XMobility:
  - The semantic images need to be 3 channels, due to the specification, but only a single channel is used; therefore, all channels need to be the same value
  - All references to SemanticLabel need to be replaced with LeRobotSemanticLabel or the equivalent for your dataset
+ - FIXED_ROUTE_SIZE and ROUTE_POSE_SIZE in lerobot_dataset.py may need to be updated to may your dataset
  - The lerobot dataset's metadata (meta/info.json) will need to be manually modified to include your intended train, test, val split, see below; the values represent episodes.
 
 ```

@@ -47,8 +47,9 @@ def visualise_semantic(batch: Dict, output: Dict) -> torch.Tensor:
         viz_video(Tensor): tensor contains the sequence of semantic segmentations
     '''
     # Extract the target and prediction labels [b, s, h, w]
-    target = batch['semantic_label']
+
     pred = torch.argmax(output['semantic_segmentation_1'].detach(), dim=-3)
+    target = batch['semantic_label'].reshape_as(pred).detach() # ensure target is the same size as pred
     # Create color map [3,3]
     color_map = torch.tensor(SEMANTIC_COLORS,
                              dtype=torch.uint8,

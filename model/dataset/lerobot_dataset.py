@@ -42,7 +42,7 @@ FIXED_ROUTE_SIZE = 200
 def create_transform_matrix(position, quaternion):
     # Create rotation matrix from quaternion
     r = Rotation.from_quat(
-        [quaternion[0], quaternion[1], quaternion[2], quaternion[3]])
+        [quaternion[0], quaternion[1], quaternion[2], quaternion[3]], scalar_first=True)
     rotation_matrix = r.as_matrix()
 
     # Create transformation matrix
