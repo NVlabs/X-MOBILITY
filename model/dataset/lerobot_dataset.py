@@ -25,13 +25,13 @@ import torch
 import torchvision.transforms.functional as tvf
 from torch.utils.data import DataLoader, Dataset, random_split
 
-import lerobot
-from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset, LeRobotDatasetMetadata
+
+from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
+from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
 
 from torch.utils.data.distributed import DistributedSampler
 from scipy.spatial.transform import Rotation
 
-from model.dataset.lerobot_semantic_label import SemanticLabel
 from model.dataset.data_constants import INPUT_IMAGE_SIZE
 
 ROUTE_POSE_SIZE = 2
@@ -108,11 +108,19 @@ class XMobilityLeRobotDataModule(pl.LightningDataModule):
         self.test_dataset = None
 
     def setup(self, stage=None):
+        metadata = LeRobotDatasetMetadata(repo_id="lerobotdataset", root=self.dataset_path)
         if stage == 'fit':
-            self.train_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'train'), self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
-            self.val_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'val'), self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
+            train_start, train_end = metadata.info["splits"]["train"].split(":")
+            self.train_dataset = LeRobotDataset(self.dataset_path, int(train_start), int(train_end),
+                                                self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
+
+            val_start, val_end = metadata.info["splits"]["validate"].split(":")
+            self.val_dataset = LeRobotDataset(self.dataset_path, int(val_start), int(val_end), self.sequence_length,
+                                              self.enable_semantic, self.is_gwm_pretrain)
         if stage == 'test' or stage is None:
-            self.test_dataset = LeRobotDataset(os.path.join(self.dataset_path, 'test'), self.sequence_length, self.enable_semantic, self.is_gwm_pretrain)
+            test_start, test_end = metadata.info["splits"]["test"].split(":")
+            self.test_dataset = LeRobotDataset(self.dataset_path, int(test_start), int(test_end), self.sequence_length,
+                                               self.enable_semantic, self.is_gwm_pretrain)
 
     def train_dataloader(self):
         train_sampler = DistributedSampler(self.train_dataset, shuffle=True)
@@ -161,6 +169,8 @@ class LeRobotDataset(Dataset):
 
     def __init__(self,
                  dataset_path: str,
+                 episode_start: int,
+                 episode_end: int,
                  sequence_length: int,
                  enable_semantic: bool = False,
                  enable_rgb_stylegan: bool = False,
@@ -171,8 +181,8 @@ class LeRobotDataset(Dataset):
         self.enable_rgb_stylegan = enable_rgb_stylegan
         self.is_gwm_pretrain = is_gwm_pretrain
         self.camera_name = 'robot.front_camera.left.'
-        self.dataset = LeLeRobotDataset(repo_id="MobilityGenH1Dataset", root=dataset_path)
-        self.semantic_label_lookup = self.dataset.meta.names[self.camera_name + "segmentation_info"]
+        self.dataset = LeLeRobotDataset(
+            repo_id="lerobotdataset", root=dataset_path, episodes=list(range(episode_start, episode_end)))
         self.accumulated_sample_sizes = []
         self.num_samples = 0
 

@@ -21,19 +21,19 @@ class LeRobotSemanticLabel(IntEnum):
     '''
     BACKGROUND = 0
     UNLABELLED = 1
-    FORKLIFT = 2
-    PALLET = 3
-    CONE = 4
-    SIGN = 5
-    FENCE = 6
-    CRATE = 7
-    FLOOR = 8
-    STRUCTURE = 9
-    LINE = 10
+    CONE = 2
+    CRATE = 3
+    FENCE = 4
+    FLOOR = 5
+    FLOOR_STRUCTURE = 6
+    FORKLIFT = 7
+    SIGN = 8
+    LINE = 9
+    PALLET_SHELF = 10
     PILE = 11
-    SHELF = 12
-    RACK = 13
-    NAVIGABLE = 14
+    RACK_SHELF = 12
+    SHELF = 13
+    STRUCTURE = 14
 
     @staticmethod
     def get_semantic_lable_names():
