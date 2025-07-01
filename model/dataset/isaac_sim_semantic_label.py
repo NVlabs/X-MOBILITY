@@ -14,7 +14,19 @@
 # limitations under the License.
 
 from enum import IntEnum
+import numpy as np
 
+SEMANTIC_COLORS = np.array(
+    [
+        [128, 128, 128],  # Background
+        [0, 255, 0],  # NavigableSurface
+        [255, 165, 0],  # Forklift
+        [0, 0, 255],  # Pallet
+        [255, 255, 0],  # Cone
+        [255, 0, 255],  # Sign
+        [255, 0, 0]  # Fence
+    ],
+    dtype=np.uint8)
 
 class SemanticLabel(IntEnum):
     ''' Semantic label enum

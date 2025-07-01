@@ -19,7 +19,8 @@ from torchmetrics.functional import jaccard_index
 from tqdm import tqdm
 from PIL import Image
 
-from model.dataset.isaac_sim_dataset import SemanticLabel
+from model.dataset.isaac_sim_semantic_label import SemanticLabel
+from model.dataset.lerobot_semantic_label import LeRobotSemanticLabel
 from model.visualization import SEMANTIC_COLORS
 from model.x_mobility.utils import pack_sequence_dim, unpack_sequence_dim
 

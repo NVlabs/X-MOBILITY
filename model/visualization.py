@@ -22,19 +22,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 from model.x_mobility.utils import pack_sequence_dim, unpack_sequence_dim
-
-SEMANTIC_COLORS = np.array(
-    [
-        [128, 128, 128],  # Background
-        [0, 255, 0],  # NavigableSurface
-        [255, 165, 0],  # Forklift
-        [0, 0, 255],  # Pallet
-        [255, 255, 0],  # Cone
-        [255, 0, 255],  # Sign
-        [255, 0, 0]  # Fence
-    ],
-    dtype=np.uint8)
-
+from model.dataset.lerobot_semantic_label import LEROBOT_SEMANTIC_COLORS
+from model.dataset.isaac_sim_semantic_label import SEMANTIC_COLORS
 
 def visualise_semantic(batch: Dict, output: Dict) -> torch.Tensor:
     '''Visualizes the semantic segmentation groundtruch and prediction

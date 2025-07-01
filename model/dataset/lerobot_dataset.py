@@ -210,8 +210,9 @@ class LeRobotDataset(Dataset):
                        'speed': self._get_speed(sample)}
 
             # grab first channel since all channels are the same
+            # lerobot scales image value between 0 and 1, so scale to proper integer label
             if self.enable_semantic:
-                element['semantic_label'] = sample[self.camera_name + 'segmentation_image'][0]
+                element['semantic_label'] = np.array([sample[self.camera_name + 'segmentation_image'][0] * 255]).astype(np.uint8)
 
             if self.is_gwm_pretrain:
                 element['route_vectors'] = self._get_route_vector(sample)

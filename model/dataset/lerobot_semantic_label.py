@@ -12,9 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import numpy as np
 from enum import IntEnum
 
+LEROBOT_SEMANTIC_COLORS = np.array(
+    [
+        [0, 0, 0],  # Background
+        [255, 255, 255],  # NavigableSurface
+        [255, 0, 0],  # Forklift
+        [0, 255, 0],  # Pallet
+        [0, 0, 255],  # Cone
+        [255,255,0],  # Sign
+        [255,0,255],
+        [192,192,192],
+        [128,128,128],
+        [128,0,0],
+        [128,128,0],# Fence
+        [0,128,0],
+        [128,0,128],
+        [0,128,128],
+        [0,0,128],
+    ],
+    dtype=np.uint8)
 
 class LeRobotSemanticLabel(IntEnum):
     ''' Semantic label enum

@@ -14,5 +14,5 @@ XMobilityLeRobotDataModule.enable_rgb_stylegan=%ENABLE_RGB_STYLEGAN
 
 # setting false is not supported currently
 IS_GWM_PRETRAIN=True
-# adjust according to dataset/index out of bounds error
+# adjust according to dataset/index out of bounds error if greater than 1
 SEQUENCE_LENGTH=1

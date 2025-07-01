@@ -17,6 +17,7 @@ import torch
 from torcheval.metrics.functional import multiclass_f1_score
 from torchmetrics.functional import jaccard_index, mean_absolute_error, mean_absolute_percentage_error
 
+from model.dataset.lerobot_semantic_label import LeRobotSemanticLabel
 from model.dataset.isaac_sim_dataset import SemanticLabel
 
 
