@@ -58,6 +58,7 @@ Currently the XMobilityLeRobotDatasetModule requires the following changes to so
  - Either modify or add a gin config file such that it is representative of your dataset
  - FIXED_ROUTE_SIZE and ROUTE_POSE_SIZE in lerobot_dataset.py may need to be updated to reflect your dataset
  - The lerobot dataset's metadata (meta/info.json) will need to be manually modified to include your intended train, test, val split, see below; the values represent episodes.
+ - NOTE: The current example expects the robot to not use linear_y velocity
 
 ```
 "splits": {
