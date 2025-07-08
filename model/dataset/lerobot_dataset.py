@@ -15,6 +15,8 @@
 import os
 
 import gin
+from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
+from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
 import numpy as np
 import pytorch_lightning as pl
 from scipy.spatial.transform import Rotation
@@ -23,8 +25,6 @@ import torchvision.transforms.functional as tvf
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
 
-from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
-from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
 from model.dataset.data_constants import INPUT_IMAGE_SIZE
 
 ROUTE_POSE_SIZE = 2
