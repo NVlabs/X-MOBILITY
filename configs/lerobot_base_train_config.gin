@@ -4,8 +4,6 @@ include 'configs/base_train_config.gin'
 NUM_SEMANTIC_CLASSES=15
 SegmentationLoss.semantic_weights=[1.0, 5.0, 5.0, 5.0, 5.0, 2.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,]
 
-# setting false is not supported currently
-IS_GWM_PRETRAIN=True
 # adjust according to dataset/index out of bounds error if greater than 1
 SEQUENCE_LENGTH=1
 
