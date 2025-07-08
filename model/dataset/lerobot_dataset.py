@@ -12,24 +12,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 
 import gin
-from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
-from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
-from model.dataset.data_constants import INPUT_IMAGE_SIZE
 import numpy as np
-import os
 import pytorch_lightning as pl
 from scipy.spatial.transform import Rotation
 import torch
 import torchvision.transforms.functional as tvf
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
 
+from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
+from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
+from model.dataset.data_constants import INPUT_IMAGE_SIZE
 
 ROUTE_POSE_SIZE = 2
 FIXED_ROUTE_SIZE = 200
-
 
 # Create a 4x4 transformation matrix from position and quaternion.
 def create_transform_matrix(position, quaternion):
@@ -214,8 +213,8 @@ class LeRobotDataset(Dataset):
             if self.enable_semantic:
                 element['semantic_label'] = np.array([sample[self.camera_name + 'segmentation_image'][0] * 255]).astype(np.uint8)
 
-            if self.is_gwm_pretrain:
-                element['route_vectors'] = self._get_route_vector(sample)
+
+            element['route_vectors'] = self._get_route_vector(sample)
 
             for k, v in element.items():
                 batch[k] = batch.get(k, []) + [v]
