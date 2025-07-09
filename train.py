@@ -22,7 +22,9 @@ from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 from arg_parser import parse_arguments, TaskMode
+
 from model.dataset.isaac_sim_dataset import XMobilityIsaacSimDataModule  # pylint: disable=unused-import
+from model.dataset.lerobot_dataset import XMobilityLeRobotDataModule  # pylint: disable=unused-import
 from model.trainer import XMobilityTrainer  # pylint: disable=unused-import
 
 

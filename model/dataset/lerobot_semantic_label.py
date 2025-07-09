@@ -12,21 +12,48 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import numpy as np
 from enum import IntEnum
 
+LEROBOT_SEMANTIC_COLORS = np.array(
+    [
+        [0, 0, 0],  # Background
+        [255, 255, 255],  # NavigableSurface
+        [255, 0, 0],  # Forklift
+        [0, 255, 0],  # Pallet
+        [0, 0, 255],  # Cone
+        [255,255,0],  # Sign
+        [255,0,255],
+        [192,192,192],
+        [128,128,128],
+        [128,0,0],
+        [128,128,0],# Fence
+        [0,128,0],
+        [128,0,128],
+        [0,128,128],
+        [0,0,128],
+    ],
+    dtype=np.uint8)
 
-class SemanticLabel(IntEnum):
+class LeRobotSemanticLabel(IntEnum):
     ''' Semantic label enum
     '''
     BACKGROUND = 0
-    NAVIGABLE = 1
-    FORKLIFT = 2
-    PALLET = 3
-    CONE = 4
-    SIGN = 5
-    FENCE = 6
+    UNLABELLED = 1
+    CONE = 2
+    CRATE = 3
+    FENCE = 4
+    FLOOR = 5
+    FLOOR_STRUCTURE = 6
+    FORKLIFT = 7
+    SIGN = 8
+    LINE = 9
+    PALLET_SHELF = 10
+    PILE = 11
+    RACK_SHELF = 12
+    SHELF = 13
+    STRUCTURE = 14
 
     @staticmethod
     def get_semantic_lable_names():
-        return [label.name for label in SemanticLabel]
+        return [label.name for label in LeRobotSemanticLabel]

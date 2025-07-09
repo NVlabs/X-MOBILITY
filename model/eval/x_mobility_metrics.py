@@ -17,6 +17,7 @@ import torch
 from torcheval.metrics.functional import multiclass_f1_score
 from torchmetrics.functional import jaccard_index, mean_absolute_error, mean_absolute_percentage_error
 
+from model.dataset.lerobot_semantic_label import LeRobotSemanticLabel
 from model.dataset.isaac_sim_dataset import SemanticLabel
 
 
@@ -37,8 +38,8 @@ class XMobilityMetrics():
         # Sementic segmentation IOU (intersection over union) metric scores.
         metrics = {}
         semantic_label_names = SemanticLabel.get_semantic_lable_names()
-        target = batch['semantic_label'][:, :, 0].detach()
         pred = torch.argmax(output['semantic_segmentation_1'].detach(), dim=-3)
+        target = batch['semantic_label'].reshape_as(pred).detach()  # ensure target is the same size as pred
         iou_scores = jaccard_index(preds=pred,
                                    target=target,
                                    task='multiclass',

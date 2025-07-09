@@ -1,0 +1,17 @@
+# Shared macros
+include 'configs/base_train_config.gin'
+
+NUM_SEMANTIC_CLASSES=15
+SegmentationLoss.semantic_weights=[1.0, 5.0, 5.0, 5.0, 5.0, 2.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0,]
+
+# adjust according to dataset/index out of bounds error if greater than 1
+SEQUENCE_LENGTH=1
+
+train.data_module=@XMobilityLeRobotDataModule
+XMobilityLeRobotDataModule.batch_size=4
+XMobilityLeRobotDataModule.sequence_length=%SEQUENCE_LENGTH
+XMobilityLeRobotDataModule.num_workers=4
+XMobilityLeRobotDataModule.is_gwm_pretrain=%IS_GWM_PRETRAIN
+XMobilityLeRobotDataModule.enable_semantic=%ENABLE_SEMANTIC
+XMobilityLeRobotDataModule.enable_rgb_stylegan=%ENABLE_RGB_STYLEGAN
+
