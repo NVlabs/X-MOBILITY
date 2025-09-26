@@ -1,4 +1,4 @@
-diffusers
+diffusers==0.29.2
 einops
 gin-config
 matplotlib
