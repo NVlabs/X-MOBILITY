@@ -119,7 +119,7 @@ def visualise_attention(batch: Dict, output: Dict):
     image = np.clip(
         batch['image'][:, 0].permute(0, 2, 3, 1).cpu().numpy() * 255, 0,
         255).astype(np.uint8)
-    attention_pred = output['image_attentions'].detach()[:, 0].cpu().numpy()
+    attention_pred = output['image_attentions'].detach()[:, 0].float().cpu().numpy()
     attention_pred = (attention_pred - np.min(attention_pred)) / (
         np.max(attention_pred) - np.min(attention_pred))
     attention_pred = np.kron(attention_pred, np.ones(
