@@ -39,6 +39,11 @@ docker build --network=host -t <image-name> .
 docker run --shm-size=512g -v <path-to-datasets>:/workspace/datasets -it <image-name> bash
 ```
 
+**Note**: If you see the warning `WARNING: The NVIDIA Driver was not detected. GPU functionality will not be available.`, ensure you:
+- Have NVIDIA container toolkit installed (`nvidia-container-toolkit` package)
+- Have NVIDIA drivers properly installed (verify with `nvidia-smi`)
+- Use the `--gpus all` flag when running the docker container
+
 2. Set WANDB_API_KEY inside container:
 ```
 export WANDB_API_KEY=<wandb-api-key>
