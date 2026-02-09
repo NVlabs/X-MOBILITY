@@ -36,7 +36,7 @@ docker build --network=host -t <image-name> .
 ## Usages
 1. Launch the docker image:
 ```
-docker run --shm-size=512g -v <path-to-datasets>:/workspace/datasets -it <image-name> bash
+docker run --gpus all --shm-size=512g -v <path-to-datasets>:/workspace/datasets -it <image-name> bash
 ```
 
 **Note**: If you see the warning `WARNING: The NVIDIA Driver was not detected. GPU functionality will not be available.`, ensure you:
