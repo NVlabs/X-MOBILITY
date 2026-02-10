@@ -15,8 +15,8 @@
 import os
 
 import gin
-from lerobot.common.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
-from lerobot.common.datasets.lerobot_dataset import LeRobotDatasetMetadata
+from lerobot.datasets.lerobot_dataset import LeRobotDataset as LeLeRobotDataset
+from lerobot.datasets.lerobot_dataset import LeRobotDatasetMetadata
 import numpy as np
 import pytorch_lightning as pl
 from scipy.spatial.transform import Rotation
